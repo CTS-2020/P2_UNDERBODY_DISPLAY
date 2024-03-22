@@ -20,6 +20,14 @@ namespace WindowsFormsApp1
                     .Build();
 
             string connectionString = configuration.GetConnectionString("PeroduaDatabase");
+            int Timer = int.Parse(configuration.GetSection("Timer").Value);
+            int LH_Screen = int.Parse(configuration.GetSection("LH_Screen").Value);
+            int RH_Screen = int.Parse(configuration.GetSection("RH_Screen").Value);
+
+            PassIn passin = new PassIn();
+            passin.ConnectionString = connectionString;
+            passin.Timer = Timer;
+
             //ConnectDB connectDB = new ConnectDB(connectionString);
 
             Application.EnableVisualStyles();
@@ -33,11 +41,11 @@ namespace WindowsFormsApp1
                 // Create and start a new thread for Form1
                 Thread form1Thread = new Thread(() =>
                 {
-                    Form1 form1 = new Form1(connectionString);
+                    Form1 form1 = new Form1(passin);
                     // Position Form1 on the primary screen
                     form1.WindowState = FormWindowState.Maximized;
                     form1.StartPosition = FormStartPosition.CenterScreen;
-                    form1.Location = screens[0].WorkingArea.Location;
+                    form1.Location = screens[LH_Screen].WorkingArea.Location;
                     form1.FormClosed += (sender, e) => Application.Exit();
                     Application.Run(form1);
                 });
@@ -47,11 +55,11 @@ namespace WindowsFormsApp1
                 // Create and start a new thread for Form2
                 Thread form2Thread = new Thread(() =>
                 {
-                    Form2 form2 = new Form2(connectionString);
+                    Form2 form2 = new Form2(passin);
                     // Position Form2 on the second screen
                     form2.WindowState = FormWindowState.Maximized;
-                    form2.StartPosition = FormStartPosition.Manual;
-                    form2.Location = screens[1].WorkingArea.Location;
+                    form2.StartPosition = FormStartPosition.CenterScreen;
+                    form2.Location = screens[RH_Screen].WorkingArea.Location;
                     form2.FormClosed += (sender, e) => Application.Exit();
                     Application.Run(form2);
                 });
@@ -64,9 +72,15 @@ namespace WindowsFormsApp1
             else
             {
                 // If there's only one screen available, show both forms on the primary screen
-                Application.Run(new Form1(connectionString));
-                Application.Run(new Form2(connectionString));
+                Application.Run(new Form1(passin));
+                Application.Run(new Form2(passin));
             }
         }
+    }
+
+    public class PassIn
+    {
+        public string ConnectionString { get; set; }
+        public int Timer { get; set; }
     }
 }

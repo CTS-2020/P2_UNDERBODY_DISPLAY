@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace WindowsFormsApp1
 {
@@ -13,22 +12,22 @@ namespace WindowsFormsApp1
     {
         private readonly string _connectString;
         public string connectionString;
-        public Form2(string connectString)
+        public Form2(PassIn passin)
         {
-            _connectString = connectString;
+            _connectString = passin.ConnectionString;
             connectionString = _connectString;
             InitializeComponent();
             SetFormSizeToScreenResolution();
             InitializePart();
-            InitializeTimer();
+            InitializeTimer(passin.Timer);
             this.Resize += ArrowPanel_Resize;
         }
 
         private Timer dataUpdateTimer;
-        private void InitializeTimer()
+        private void InitializeTimer(int timerDuration)
         {
             dataUpdateTimer = new Timer();
-            dataUpdateTimer.Interval = 1000;
+            dataUpdateTimer.Interval = timerDuration;
             dataUpdateTimer.Tick += RefreshTimer_Tick;
             dataUpdateTimer.Start();
         }
@@ -38,63 +37,36 @@ namespace WindowsFormsApp1
             GetRefreshInd();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form2_Load(object sender, EventArgs e)
         {
             ArrowPanel_Resize(sender, e);
-            this.Paint += Arrow_Draw;
         }
+
+        public int TopPanelHeight;
+        public int BottomPanelHeight;
+        public int CheckpointPanelHeight;
+        public int ImagePanelHeight;
 
         private void SetFormSizeToScreenResolution()
         {
-            // Get the primary screen resolution
-            Rectangle resolution = Screen.PrimaryScreen.Bounds;
+            this.Width = 1920;
+            this.Height = 1080;
 
-            // Set the size of the form to match the screen resolution
-            this.Width = resolution.Width;
-            this.Height = resolution.Height;
+            TopPanelHeight = (int)(this.Height * HEIGHT_RATIO.Ratio_10);
+            BottomPanelHeight = (int)(this.Height * HEIGHT_RATIO.Ratio_15);
+            CheckpointPanelHeight = (int)(this.Height * HEIGHT_RATIO.Ratio_15);
+            ImagePanelHeight = (int)(this.Height * HEIGHT_RATIO.Ratio_50);
 
-            // Optionally, you can center the form on the screen
             this.StartPosition = FormStartPosition.CenterScreen;
-        }
-
-        public static class SIDE
-        {
-            public static readonly string Left = "LH";
-            public static readonly string Right = "RH";
         }
 
         public static class MODEL_IMAGE
         {
-            public static readonly string D20N = "1_R.jpg";
+            public static readonly string D20N = "1_R.png";
             public static readonly string D19H = "2_R.png";
             public static readonly string D27H = "3_R.png";
             public static readonly string D66B = "";
         }
-
-        public static class MODEL_LOGO
-        {
-            public static readonly string D20N = "Myvi_Logo.jpg";
-            public static readonly string D19H = "Aruz_Logo.jpg";
-            public static readonly string D27H = "Alza_Logo.png";
-            public static readonly string D66B = "";
-        }
-
-        public static class COLOR
-        {
-            public static readonly Color green = ColorTranslator.FromHtml("#00B050");
-            public static readonly Color blue = ColorTranslator.FromHtml("#00B0F0");
-            public static readonly Color red = ColorTranslator.FromHtml("#FF0000");
-        }
-
-
-        public static readonly Dictionary<string, string> MODEL_NAME = new Dictionary<string, string>()
-        {
-            { "1", "D20N"},
-            { "2", "D19H"},
-            { "3", "D27H"},
-            { "4", "D66B"}
-        };
-
 
         public string mapModelImage(string modelNumber, string type)
         {
@@ -128,8 +100,6 @@ namespace WindowsFormsApp1
             }
             return null;
         }
-
-        DataSet ds;
         DataTable dataTable;
         public string Model;
         public string CarID;
@@ -174,6 +144,7 @@ namespace WindowsFormsApp1
                 using (SqlCommand command = new SqlCommand(storedProcedureName, connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ip_formInd", SIDE.Right);
                     connection.Open();
                     dataTable = new DataTable();
                     using (SqlDataAdapter adapter = new SqlDataAdapter(command))
@@ -222,12 +193,12 @@ namespace WindowsFormsApp1
             modelBox.Image = Image.FromFile(imagePath);
             //modelBox.Image = Image.FromFile(@"C:\vsFolder\20240312_PERODUA_UnderbodyIPC_Display\WindowsFormsApp1\Resources\" + mapModelImage(Model, "Logo"));
             modelBox.Dock = DockStyle.Right;
-            modelBox.Width = 200;
+            modelBox.Width = 400;
 
             DetailsPanel.Controls.Clear();
             DetailsPanel.Dock = DockStyle.Left;
             DetailsPanel.Padding = new Padding(10, 0, 0, 5);
-            DetailsPanel.Width = 280;
+            DetailsPanel.Width = 400;
             DetailsPanel.RowCount = 2;
             DetailsPanel.ColumnCount = 2;
             DetailsPanel.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
@@ -241,11 +212,11 @@ namespace WindowsFormsApp1
             string formattedTime = currentDateTime.ToString("HH:mm tt");
 
             ModelID.Controls.Clear();
-            ModelID.Text = "MODEL: " + MODEL_NAME[Model];
+            ModelID.Text = "MODEL: " + MODEL_CONST.MODEL_NAME[Model];
             VehicleID.Controls.Clear();
-            VehicleID.Text = "VEHICLE ID: " + CarID;
+            VehicleID.Text = "VEHICLE ID: \n" + CarID;
             Date.Controls.Clear();
-            Date.Text = "DATE: " + formattedDate;
+            Date.Text = "DATE: \n" + formattedDate;
             Time.Controls.Clear();
             Time.Text = "TIME: " + formattedTime;
 
@@ -260,7 +231,6 @@ namespace WindowsFormsApp1
             tableLayoutPanel.RowCount = 2;
             tableLayoutPanel.ColumnCount = 10;
             tableLayoutPanel.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
-            tableLayoutPanel.AutoSize = true;
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
@@ -351,11 +321,11 @@ namespace WindowsFormsApp1
 
             Panel topPanel = new Panel();
             topPanel.Dock = DockStyle.Top;
-            topPanel.Height = 75;
+            topPanel.Height = TopPanelHeight;
 
             Panel bottomPanel = new Panel();
             bottomPanel.Dock = DockStyle.Bottom;
-            bottomPanel.Height = 80;
+            bottomPanel.Height = BottomPanelHeight;
             //bottomPanel.BackColor = Color.Green;
 
             PictureBox iconBox = new PictureBox();
@@ -364,15 +334,15 @@ namespace WindowsFormsApp1
             string imagePath = Path.Combine(Application.StartupPath, "Resources", "Perodua_Logo.jpg");
 
             iconBox.Image = Image.FromFile(imagePath);
-            iconBox.Width = 90;
-            iconBox.Height = 60;
+            iconBox.Width = 150;
+            //iconBox.Height = 60;
             iconBox.Dock = DockStyle.Left;
 
             Label titleLabel = new Label();
             titleLabel.Text = "MB#12 Underbody Inspection System";
             titleLabel.Dock = DockStyle.Fill;
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
-            titleLabel.Font = new Font("Arial", 16f, FontStyle.Bold);
+            titleLabel.Font = new Font(this.Font.FontFamily, 23, FontStyle.Bold);
 
             Label sideLabel = new Label();
             sideLabel.Text = SIDE.Right;
@@ -380,7 +350,8 @@ namespace WindowsFormsApp1
             sideLabel.Dock = DockStyle.Right;
             sideLabel.BackColor = Color.Red;
             sideLabel.ForeColor = Color.White;
-            sideLabel.Font = new Font("Arial", 16f, FontStyle.Bold);
+            sideLabel.Font = new Font(this.Font.FontFamily, 18, FontStyle.Bold);
+            sideLabel.Width = 150;
 
             topPanel.Controls.Add(iconBox);
             topPanel.Controls.Add(titleLabel);
@@ -391,18 +362,18 @@ namespace WindowsFormsApp1
 
             this.Controls.Add(topPanel);
             InitializeImage();
-            InitializeArrowPanel();
+            //InitializeArrowPanel();
             InitializeCheckPointPanel();
             this.Controls.Add(bottomPanel);
         }
 
+        Panel checkpointPanel = new Panel();
         private void InitializeCheckPointPanel()
         {
-            Panel checkpointPanel = new Panel();
             checkpointPanel.Dock = DockStyle.Bottom;
-            checkpointPanel.Height = 80;
+            checkpointPanel.Height = CheckpointPanelHeight;
             //checkpointPanel.BackColor = Color.Black;
-            checkpointPanel.Padding = new Padding((int)(((double)checkpointPanel.Width) * 1.5), 0, (int)(((double)checkpointPanel.Width) * 1.5), 0);
+            //checkpointPanel.Padding = new Padding((int)(((double)checkpointPanel.Width) * 1.5), 0, (int)(((double)checkpointPanel.Width) * 1.5), 0);
 
             InitializeLabels();
             checkpointPanel.Controls.Add(tableLayoutPanel);
@@ -412,9 +383,10 @@ namespace WindowsFormsApp1
         Panel ImagePanel = new Panel();
         private void InitializeImage()
         {
-            ImagePanel.Dock = DockStyle.Fill;
+            ImagePanel.Dock = DockStyle.Bottom;
+            ImagePanel.Height = ImagePanelHeight;
             //ImagePanel.BackColor = Color.Green;
-            ImagePanel.AutoSize = true;
+            //ImagePanel.AutoSize = true;
             UpdateImage();
             ImagePanel.Controls.Add(ImageBox);
             this.Controls.Add(ImagePanel);
@@ -425,145 +397,65 @@ namespace WindowsFormsApp1
             ImageBox.Controls.Clear();
             ImageBox.SizeMode = PictureBoxSizeMode.Zoom;
             ImageBox.Dock = DockStyle.Fill;
+            ImageBox.Height = ImagePanelHeight;
             //ImageBox.BackColor = Color.Red;
-            ImageBox.Padding = new Padding(0, 0, 0, 0);
+            ImageBox.Padding = new Padding(0);
             ImageBox.Margin = new Padding(0);
             string imageName = mapModelImage(Model, "Image");
             string imagePath = Path.Combine(Application.StartupPath, "Resources", imageName);
             ImageBox.Image = Image.FromFile(imagePath);
         }
 
-        FlowLayoutPanel flowLayoutPanel = new FlowLayoutPanel();
-        Panel ArrowPanel = new Panel();
-        private void InitializeArrowPanel()
-        {
-            ArrowPanel.Dock = DockStyle.Bottom;
-            //ArrowPanel.BackColor = Color.Gray;
-            ArrowPanel.Height = 50;
-            this.Controls.Add(ArrowPanel);
-        }
-
         private void ArrowPanel_Resize(object sender, EventArgs e)
         {
-            //int width = flowLayoutPanel.Width / 10;
-            flowLayoutPanel.Controls.Clear();
-            //flowLayoutPanel.BackColor = Color.White;
-            flowLayoutPanel.Dock = DockStyle.Fill;
-            flowLayoutPanel.FlowDirection = FlowDirection.LeftToRight;
-            flowLayoutPanel.Margin = new Padding(0);
-            flowLayoutPanel.Padding = new Padding(0);
 
             if (Model == "1")
             {
-                SetPaddingBasedOnModel(Model, 0.33, 0.35, 0.16, 0.16);
+                SetPaddingBasedOnModel(Model, 0.32, 0.32, 0.16, 0.16);
             }
             else if (Model == "2")
             {
-                SetPaddingBasedOnModel(Model, 0.37, 0.345, 0.16, 0.16);
+                SetPaddingBasedOnModel(Model, 0.30, 0.30, 0.16, 0.16);
             }
             else if (Model == "3")
             {
-                SetPaddingBasedOnModel(Model, 0.355, 0.325, 0.16, 0.16);
+                SetPaddingBasedOnModel(Model, 0.31, 0.28, 0.16, 0.16);
             }
             else if (Model == "4")
             {
 
             }
-
-            int labelwidth = flowLayoutPanel.Width / 10;
-            //for (int i = 1; i <= 10; i++)
-            //{
-            //    Label label = new Label();
-            //    label.Margin = new Padding(0);
-            //    label.Padding = new Padding(0);
-            //    label.Font = new Font("Arial", 10);
-            //    label.Text = (11 - i).ToString();
-            //    label.AutoSize = false;
-            //    label.Width = labelwidth;
-            //    label.TextAlign = ContentAlignment.MiddleCenter;
-            //    flowLayoutPanel.Controls.Add(label);
-            //}
-
-            ArrowPanel.Controls.Add(flowLayoutPanel);
-            ImageBox.Invalidate();
         }
 
         private void ArrowPanel_Resize2()
         {
-            //int width = flowLayoutPanel.Width / 10;
-            flowLayoutPanel.Controls.Clear();
-            //flowLayoutPanel.BackColor = Color.White;
-            flowLayoutPanel.Dock = DockStyle.Fill;
-            flowLayoutPanel.FlowDirection = FlowDirection.LeftToRight;
-            flowLayoutPanel.Margin = new Padding(0);
-            flowLayoutPanel.Padding = new Padding(0);
-
             if (Model == "1")
             {
-                SetPaddingBasedOnModel(Model, 0.33, 0.35, 0.16, 0.16);
+                SetPaddingBasedOnModel(Model, 0.32, 0.32, 0.16, 0.16);
             }
             else if (Model == "2")
             {
-                SetPaddingBasedOnModel(Model, 0.37, 0.345, 0.16, 0.16);
+                SetPaddingBasedOnModel(Model, 0.30, 0.30, 0.16, 0.16);
             }
             else if (Model == "3")
             {
-                SetPaddingBasedOnModel(Model, 0.355, 0.325, 0.16, 0.16);
+                SetPaddingBasedOnModel(Model, 0.31, 0.28, 0.16, 0.16);
             }
             else if (Model == "4")
             {
 
             }
-
-            int labelwidth = flowLayoutPanel.Width / 10;
-            //for (int i = 1; i <= 10; i++)
-            //{
-            //    Label label = new Label();
-            //    label.Margin = new Padding(0);
-            //    label.Padding = new Padding(0);
-            //    label.Font = new Font("Arial", 10);
-            //    label.Text = (11 - i).ToString();
-            //    label.AutoSize = false;
-            //    label.Width = labelwidth;
-            //    label.TextAlign = ContentAlignment.MiddleCenter;
-            //    flowLayoutPanel.Controls.Add(label);
-            //}
-
-            ArrowPanel.Controls.Add(flowLayoutPanel);
-            ImageBox.Invalidate();
         }
 
         private void SetPaddingBasedOnModel(string model, double leftPaddingPercentage, double rightPaddingPercentage, double imageBoxLeftPaddingPercentage, double imageBoxRightPaddingPercentage)
         {
-            int leftPadding = (int)(ArrowPanel.Width * leftPaddingPercentage);
-            int rightPadding = (int)(ArrowPanel.Width * rightPaddingPercentage);
-            int imageBoxLeftPadding = (int)(ArrowPanel.Width * imageBoxLeftPaddingPercentage);
-            int imageBoxRightPadding = (int)(ArrowPanel.Width * imageBoxRightPaddingPercentage);
+            int leftPadding = (int)(checkpointPanel.Width * leftPaddingPercentage);
+            int rightPadding = (int)(checkpointPanel.Width * rightPaddingPercentage);
+            int imageBoxLeftPadding = (int)(checkpointPanel.Width * imageBoxLeftPaddingPercentage);
+            int imageBoxRightPadding = (int)(checkpointPanel.Width * imageBoxRightPaddingPercentage);
 
-            ArrowPanel.Padding = new Padding(leftPadding, 0, rightPadding, 0);
+            checkpointPanel.Padding = new Padding(leftPadding, 0, rightPadding, 0);
             ImagePanel.Padding = new Padding(imageBoxLeftPadding, 30, imageBoxRightPadding, 0);
-        }
-
-        public Point centerFlowPoint;
-        public Point centerTablePoint;
-        private void Arrow_Draw(object sender, PaintEventArgs e)
-        {
-
-            int cellWidth = tableLayoutPanel.Width / tableLayoutPanel.ColumnCount;
-            int cellHeight = tableLayoutPanel.Height / tableLayoutPanel.RowCount;
-            int borderX = tableLayoutPanel.Location.X + cellWidth / 2;
-            int borderY = tableLayoutPanel.Location.Y + cellHeight;
-            centerTablePoint = new Point(borderX, borderY);
-
-            if (flowLayoutPanel.Controls.Count > 0)
-            {
-                Control firstControl = flowLayoutPanel.Controls[0];
-                int centerX = firstControl.Location.X + (firstControl.Width / 2);
-                int centerY = firstControl.Location.Y + (firstControl.Height / 2);
-                centerFlowPoint = new Point(centerX, centerY);
-            }
-
-            e.Graphics.DrawLine(Pens.Black, centerTablePoint, centerFlowPoint);
         }
     }
 }
