@@ -50,7 +50,7 @@ namespace WindowsFormsApp1
                     form1.StartPosition = FormStartPosition.CenterScreen;
                     form1.Location = screens[LH_Screen].WorkingArea.Location;
                     form1.FormClosed += (sender, e) => Application.Exit();
-                    //Application.Run(form1);
+                    Application.Run(form1);
                 });
                 form1Thread.SetApartmentState(ApartmentState.STA); // Set the apartment state to STA (required for Windows Forms)
                 form1Thread.Start();
@@ -64,7 +64,7 @@ namespace WindowsFormsApp1
                     form2.StartPosition = FormStartPosition.CenterScreen;
                     form2.Location = screens[RH_Screen].WorkingArea.Location;
                     form2.FormClosed += (sender, e) => Application.Exit();
-                    //Application.Run(form2);
+                    Application.Run(form2);
                 });
                 form2Thread.SetApartmentState(ApartmentState.STA); // Set the apartment state to STA (required for Windows Forms)
                 form2Thread.Start();
@@ -89,8 +89,8 @@ namespace WindowsFormsApp1
             else
             {
                 // If there's only one screen available, show both forms on the primary screen
-                //Application.Run(new Form1(passin));
-                //Application.Run(new Form2(passin));
+                Application.Run(new Form1(passin));
+                Application.Run(new Form2(passin));
                 Application.Run(new Form3(passin));
             }
         }
