@@ -26,8 +26,10 @@ namespace WindowsFormsApp1
             InitializeComponent();
 
             SetFormSizeToScreenResolution();
+
             InitialiseCameraPointSearchPanel();
             InitializeSearchPart();
+            InitialiseTopPaddingPanel();
             InitialNavigateButotn();
             InitialLogTable();
         }
@@ -43,7 +45,7 @@ namespace WindowsFormsApp1
         {
             Panel SearchPanel = new Panel();
             SearchPanel.Dock = DockStyle.Top;
-            SearchPanel.Height = 30;
+            SearchPanel.Height = 50;
             //SearchPanel.BackColor = Color.Pink;
 
             Panel EmptyPanel = new Panel();
@@ -69,7 +71,7 @@ namespace WindowsFormsApp1
 
             Panel RightPanelInSearch = new Panel();
             RightPanelInSearch.Width = leftPanelInSearch.Width;
-            RightPanelInSearch.BackColor = Color.White;
+            //RightPanelInSearch.BackColor = Color.White;
             RightPanelInSearch.Dock = DockStyle.Right;
 
             LabelDockLeft CarID = new LabelDockLeft();
@@ -108,7 +110,7 @@ namespace WindowsFormsApp1
         {
             Panel CameraSearchPanel = new Panel();
             CameraSearchPanel.Dock = DockStyle.Top;
-            CameraSearchPanel.Height = 30;
+            CameraSearchPanel.Height = 50;
             //CameraSearchPanel.BackColor = Color.Pink;
 
             Panel EmptyCameraPanel = new Panel();
@@ -118,7 +120,7 @@ namespace WindowsFormsApp1
 
             Panel EmptyCameraPanel2 = new Panel();
             EmptyCameraPanel2.Dock = DockStyle.Right;
-            //EmptyPanel2.BackColor = Color.Black;
+            //EmptyCameraPanel2.BackColor = Color.Black;
             EmptyCameraPanel2.Width = 200;
 
             Panel leftPanelInCameraSearch = new Panel();
@@ -128,7 +130,7 @@ namespace WindowsFormsApp1
 
             Panel RightPanelInCameraSearch = new Panel();
             RightPanelInCameraSearch.Width = leftPanelInCameraSearch.Width;
-            RightPanelInCameraSearch.BackColor = Color.White;
+            //RightPanelInCameraSearch.BackColor = Color.White;
             RightPanelInCameraSearch.Dock = DockStyle.Right;
 
             LabelDockLeft CameraPointLabel = new LabelDockLeft();
@@ -161,7 +163,19 @@ namespace WindowsFormsApp1
             CameraSearchPanel.Controls.Add(RightPanelInCameraSearch);
             CameraSearchPanel.Controls.Add(EmptyCameraPanel2);
 
+            //TopEMptyPanel.Controls.Add();
+
+
             this.Controls.Add(CameraSearchPanel);
+        }
+        private void InitialiseTopPaddingPanel()
+        {
+            Panel TopEMptyPanel = new Panel();
+            TopEMptyPanel.Dock = DockStyle.Top;
+            TopEMptyPanel.Height = 50;
+            //TopEMptyPanel.BackColor = Color.Yellow;
+
+            this.Controls.Add(TopEMptyPanel);
         }
         private void SetFormSizeToScreenResolution()
         {
@@ -171,6 +185,7 @@ namespace WindowsFormsApp1
         }
 
         DataGridView LogDataGridViewTable = new DataGridView();
+        Label PageLabel = new Label();
         public void InitialLogTable()
         {
             LogDataGridViewTable.Dock = DockStyle.Bottom;
@@ -180,12 +195,19 @@ namespace WindowsFormsApp1
             LogDataGridViewTable.ReadOnly = true;
             getLogData("", "", "", "", PageNumber, PageSize);
 
+            PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
+            PageLabel.Dock = DockStyle.Left;
+            PageLabel.TextAlign = ContentAlignment.BottomLeft;
+            PageLabel.Font = new Font(this.Font.FontFamily, 13);
+            NextPrevBtnPanel.Controls.Add(PageLabel);
+
             this.Controls.Add(LogDataGridViewTable);
         }
 
+        Panel NextPrevBtnPanel = new Panel();
         public void InitialNavigateButotn()
         {
-            Panel NextPrevBtnPanel = new Panel();
+
             NextPrevBtnPanel.Height = 50;
             NextPrevBtnPanel.Dock = DockStyle.Bottom;
 
@@ -233,6 +255,7 @@ namespace WindowsFormsApp1
                 }
                 string totalPageValue = dataTable.Rows.Count > 0 ? dataTable.Rows[0]["TotalPage"].ToString() : "0";
                 TotalPage = int.Parse(totalPageValue);
+                PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
             }
             DataTable filteredDataTable = dataTable.Copy();
             filteredDataTable.Columns.Remove("Log Date");
@@ -247,6 +270,7 @@ namespace WindowsFormsApp1
         private void UpdateLogGridViewTable(string carModel, string carID, string cameraPoint, string PointStatus)
         {
             PageNumber = 1;
+            PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
             getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize);
         }
 
@@ -254,12 +278,14 @@ namespace WindowsFormsApp1
         {
             //PageNumber = PageNumber + 1;
             PageNumber = Math.Min(PageNumber + 1, TotalPage);
+            PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
             getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize);
         }
 
         private void PrevPage(string carModel, string carID, string cameraPoint, string PointStatus)
         {
             PageNumber = Math.Max(PageNumber - 1, 1);
+            PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
             getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize);
         }
 
@@ -271,7 +297,7 @@ namespace WindowsFormsApp1
         {
             selectedModel = comboBoxModel.SelectedItem.ToString();
             input_carID = LeftInputTextBox.Text ?? "";
-            selectedCamera = CameraPoint.SelectedItem.ToString();
+            selectedCamera = PointStatus.SelectedItem.ToString() == "" ? "" : CameraPoint.SelectedItem.ToString();
             selectedStatus = PointStatus.SelectedItem.ToString() == "OK" ? "1" : "0";
             UpdateLogGridViewTable(selectedModel, input_carID, selectedCamera, selectedStatus);
         }
@@ -336,7 +362,8 @@ namespace WindowsFormsApp1
         public LabelDockLeft()
         {
             this.Dock = DockStyle.Left;
-            this.TextAlign = ContentAlignment.MiddleCenter;
+            this.TextAlign = ContentAlignment.TopCenter;
+            this.Font = new Font(this.Font.FontFamily, 13);
         }
     }
     public class InputBox : TextBox
