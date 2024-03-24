@@ -26,7 +26,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
 
             SetFormSizeToScreenResolution();
-
+            InitialiseDatePanel();
             InitialiseCameraPointSearchPanel();
             InitializeSearchPart();
             InitialiseTopPaddingPanel();
@@ -40,6 +40,8 @@ namespace WindowsFormsApp1
         }
 
         InputBox LeftInputTextBox = new InputBox();
+        DateTimePicker DateFromPicker = new DateTimePicker();
+        DateTimePicker DateToPicker = new DateTimePicker();
         ComboBox comboBoxModel = new ComboBox();
         private void InitializeSearchPart()
         {
@@ -168,11 +170,69 @@ namespace WindowsFormsApp1
 
             this.Controls.Add(CameraSearchPanel);
         }
+        CheckBox checkDate = new CheckBox();
+        private void InitialiseDatePanel()
+        {
+            Panel DateSearchPanel = new Panel();
+            DateSearchPanel.Dock = DockStyle.Top;
+            DateSearchPanel.Height = 50;
+
+            Panel EmptyDatePanel = new Panel();
+            EmptyDatePanel.Dock = DockStyle.Left;
+            //EmptyCameraPanel.BackColor = Color.Black;
+            EmptyDatePanel.Width = 200;
+
+            Panel EmptyDatePanel2 = new Panel();
+            EmptyDatePanel2.Dock = DockStyle.Right;
+            //EmptyCameraPanel2.BackColor = Color.Black;
+            EmptyDatePanel2.Width = 200;
+
+            checkDate.Dock = DockStyle.Left;
+            Panel leftPanelInDateSearch = new Panel();
+            leftPanelInDateSearch.Width = 400;
+            //leftPanelInCameraSearch.BackColor = Color.Purple;
+            leftPanelInDateSearch.Dock = DockStyle.Left;
+
+            Panel RightPanelInDateSearch = new Panel();
+            RightPanelInDateSearch.Width = leftPanelInDateSearch.Width;
+            //RightPanelInCameraSearch.BackColor = Color.White;
+            RightPanelInDateSearch.Dock = DockStyle.Right;
+
+            LabelDockLeft DateFromLabel = new LabelDockLeft();
+            LabelDockLeft DateToLabel = new LabelDockLeft();
+            LabelDockLeft DateCheckLabel = new LabelDockLeft();
+            DateFromLabel.Text = "Date From: ";
+            DateToLabel.Text = "Date To: ";
+            DateCheckLabel.Text = "Check \nDate";
+            DateFromPicker.Dock = DockStyle.Left;
+            DateToPicker.Dock = DockStyle.Right;
+
+            EmptyDatePanel2.Controls.Add(checkDate);
+            EmptyDatePanel2.Controls.Add(DateCheckLabel);
+
+            int labelWidth = (int)(leftPanelInDateSearch.Width * 0.3);
+            int datepickerWidth = (leftPanelInDateSearch.Width - labelWidth);
+            DateFromLabel.Width = labelWidth;
+            DateFromPicker.Width = datepickerWidth;
+            DateToPicker.Width = datepickerWidth;
+
+            leftPanelInDateSearch.Controls.Add(DateFromPicker);
+            leftPanelInDateSearch.Controls.Add(DateFromLabel);
+            RightPanelInDateSearch.Controls.Add(DateToPicker);
+            RightPanelInDateSearch.Controls.Add(DateToLabel);
+
+            DateSearchPanel.Controls.Add(leftPanelInDateSearch);
+            DateSearchPanel.Controls.Add(EmptyDatePanel);
+            DateSearchPanel.Controls.Add(RightPanelInDateSearch);
+            DateSearchPanel.Controls.Add(EmptyDatePanel2);
+
+            this.Controls.Add(DateSearchPanel);
+        }
         private void InitialiseTopPaddingPanel()
         {
             Panel TopEMptyPanel = new Panel();
             TopEMptyPanel.Dock = DockStyle.Top;
-            TopEMptyPanel.Height = 50;
+            TopEMptyPanel.Height = 30;
             //TopEMptyPanel.BackColor = Color.Yellow;
 
             this.Controls.Add(TopEMptyPanel);
@@ -193,7 +253,7 @@ namespace WindowsFormsApp1
             LogDataGridViewTable.RowHeadersVisible = true;
             LogDataGridViewTable.ColumnHeadersVisible = true;
             LogDataGridViewTable.ReadOnly = true;
-            getLogData("", "", "", "", PageNumber, PageSize);
+            getLogData("", "", "", "", PageNumber, PageSize, DateFrom, DateTo);
 
             PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
             PageLabel.Dock = DockStyle.Left;
@@ -231,7 +291,7 @@ namespace WindowsFormsApp1
 
         DataTable dataTable;
         public int TotalPage;
-        public void getLogData(string model, string carID, string cameraPoint, string PointStatus, int pageNumber, int pageSize)
+        public void getLogData(string model, string carID, string cameraPoint, string PointStatus, int pageNumber, int pageSize, string DateFrom, string DateTo)
         {
             if (dataTable != null) dataTable.Clear();
             string storedProcedureName = "PERODUA_GET_LogRecord";
@@ -246,6 +306,8 @@ namespace WindowsFormsApp1
                     command.Parameters.AddWithValue("@ip_PointResult", PointStatus);
                     command.Parameters.AddWithValue("@ip_pageNumber", pageNumber);
                     command.Parameters.AddWithValue("@pageSize", pageSize);
+                    command.Parameters.AddWithValue("@ip_dateFrom", DateFrom);
+                    command.Parameters.AddWithValue("@ip_dateTo", DateTo);
                     connection.Open();
                     dataTable = new DataTable();
                     using (SqlDataAdapter adapter = new SqlDataAdapter(command))
@@ -267,39 +329,43 @@ namespace WindowsFormsApp1
         }
 
         //refresh click action
-        private void UpdateLogGridViewTable(string carModel, string carID, string cameraPoint, string PointStatus)
+        private void UpdateLogGridViewTable(string carModel, string carID, string cameraPoint, string PointStatus, string DateFrom, string DateTo)
         {
             PageNumber = 1;
             PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
-            getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize);
+            getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize, DateFrom, DateTo);
         }
 
-        private void NextPage(string carModel, string carID, string cameraPoint, string PointStatus)
+        private void NextPage(string carModel, string carID, string cameraPoint, string PointStatus, string DateFrom, string DateTo)
         {
             //PageNumber = PageNumber + 1;
             PageNumber = Math.Min(PageNumber + 1, TotalPage);
             PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
-            getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize);
+            getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize, DateFrom, DateTo);
         }
 
-        private void PrevPage(string carModel, string carID, string cameraPoint, string PointStatus)
+        private void PrevPage(string carModel, string carID, string cameraPoint, string PointStatus, string DateFrom, string DateTo)
         {
             PageNumber = Math.Max(PageNumber - 1, 1);
             PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
-            getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize);
+            getLogData(carModel, carID, cameraPoint, PointStatus, PageNumber, PageSize, DateFrom, DateTo);
         }
 
         public string selectedModel = "";
         public string input_carID = "";
         public string selectedCamera = "";
         public string selectedStatus = "";
+        public string DateFrom = "";
+        public string DateTo = "";
         private void SearchBtn_Click(object sender, EventArgs e)
         {
             selectedModel = comboBoxModel.SelectedItem.ToString();
             input_carID = LeftInputTextBox.Text ?? "";
             selectedCamera = PointStatus.SelectedItem.ToString() == "" ? "" : CameraPoint.SelectedItem.ToString();
             selectedStatus = PointStatus.SelectedItem.ToString() == "OK" ? "1" : "0";
-            UpdateLogGridViewTable(selectedModel, input_carID, selectedCamera, selectedStatus);
+            DateFrom = checkDate.Checked ? DateFromPicker.Value.ToString("yyyy/MM/dd") : "";
+            DateTo = checkDate.Checked ? DateToPicker.Value.ToString("yyyy/MM/dd") : "";
+            UpdateLogGridViewTable(selectedModel, input_carID, selectedCamera, selectedStatus, DateFrom, DateTo);
         }
         private void RefreshBtn_Click(object sender, EventArgs e)
         {
@@ -307,16 +373,18 @@ namespace WindowsFormsApp1
             input_carID = "";
             selectedCamera = "";
             selectedStatus = "";
-            UpdateLogGridViewTable(selectedModel, input_carID, selectedCamera, selectedStatus);
+            DateFrom = "";
+            DateTo = "";
+            UpdateLogGridViewTable(selectedModel, input_carID, selectedCamera, selectedStatus, DateFrom, DateTo);
         }
         private void PrevBtn_Click(object sender, EventArgs e)
         {
-            PrevPage(selectedModel, input_carID, selectedCamera, selectedStatus);
+            PrevPage(selectedModel, input_carID, selectedCamera, selectedStatus, DateFrom, DateTo);
         }
 
         private void NextBtn_Click(object sender, EventArgs e)
         {
-            NextPage(selectedModel, input_carID, selectedCamera, selectedStatus);
+            NextPage(selectedModel, input_carID, selectedCamera, selectedStatus, DateFrom, DateTo);
         }
 
         private void LogDataGridViewTable_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
