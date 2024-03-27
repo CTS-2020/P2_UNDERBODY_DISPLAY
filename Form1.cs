@@ -137,6 +137,7 @@ namespace WindowsFormsApp1
         LabeledValue V1C9Value = new LabeledValue();
         LabeledValue V1C10Value = new LabeledValue();
 
+        public bool LogInd = false;
         private void GetData()
         {
             if (dataTable != null) dataTable.Clear();
@@ -155,7 +156,8 @@ namespace WindowsFormsApp1
                     }
                     Model = dataTable.Rows[0]["current_car_model"].ToString();
                     CarID = dataTable.Rows[0]["car_id"].ToString();
-                    InsLog(dataTable);
+                    if (LogInd) InsLog(dataTable);
+
                 }
             }
             UpdateCheckpointPanel();
@@ -184,7 +186,11 @@ namespace WindowsFormsApp1
                 }
             }
 
-            if (refreshInd == true) GetData();
+            if (refreshInd == true)
+            {
+                LogInd = true;
+                GetData();
+            }
         }
 
         private void InsLog(DataTable data)

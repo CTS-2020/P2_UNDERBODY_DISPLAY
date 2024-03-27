@@ -14,6 +14,8 @@ namespace WindowsFormsApp1
         [STAThread]
         static void Main()
         {
+
+
             IConfiguration configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile("appsettings.json")
@@ -25,6 +27,9 @@ namespace WindowsFormsApp1
             int LH_Screen = int.Parse(configuration.GetSection("LH_Screen").Value);
             int RH_Screen = int.Parse(configuration.GetSection("RH_Screen").Value);
             int Log_Screen = int.Parse(configuration.GetSection("Log_Screen").Value);
+            int StartupTimer = int.Parse(configuration.GetSection("StartupTimer").Value);
+
+            Thread.Sleep(StartupTimer);
 
             PassIn passin = new PassIn();
             passin.ConnectionString = connectionString;
@@ -41,6 +46,8 @@ namespace WindowsFormsApp1
             // Check if there are at least two screens available
             if (screens.Length >= 2)
             {
+
+
                 // Create and start a new thread for Form1
                 Thread form1Thread = new Thread(() =>
                 {
