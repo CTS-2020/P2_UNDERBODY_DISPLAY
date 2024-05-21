@@ -22,6 +22,7 @@ namespace WindowsFormsApp1
             InitializePart();
             InitializeTimer(passin.Timer);
             this.Resize += ArrowPanel_Resize;
+            
         }
 
         private Timer dataUpdateTimer;
@@ -246,6 +247,7 @@ namespace WindowsFormsApp1
             dr["v2c9"] = data.Rows[0]["v2c9"].ToString() == "OK" ? 1 : 0;
             dr["v2c10"] = data.Rows[0]["v2c10"].ToString() == "OK" ? 1 : 0;
 
+            LogInd = false;
             dt.Rows.Add(dr);
             ds.Tables.Add(dt);
             string dsXml = ds.GetXml();

@@ -320,7 +320,7 @@ namespace WindowsFormsApp1
                 PageLabel.Text = PageNumber.ToString() + "/" + TotalPage.ToString();
             }
             DataTable filteredDataTable = dataTable.Copy();
-            filteredDataTable.Columns.Remove("Log Date");
+            //filteredDataTable.Columns.Remove("Log Date");
             filteredDataTable.Columns.Remove("TotalPage");
             filteredDataTable.Columns.Remove("current_car_model");
             filteredDataTable.Columns.Remove("refresh_indicator");
