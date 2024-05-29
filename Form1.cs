@@ -1,4 +1,5 @@
 ﻿
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,16 +14,20 @@ namespace WindowsFormsApp1
     {
         private readonly string _connectString;
         public string connectionString;
+        public readonly string _logDirectory;
+        public readonly string _logFilePrefix;
         public Form1(PassIn passin)
         {
             _connectString = passin.ConnectionString;
             connectionString = _connectString;
+            _logDirectory = passin.LogDirectory;
+            _logFilePrefix = passin.LogFilePrefix;
             InitializeComponent();
             SetFormSizeToScreenResolution();
             InitializePart();
             InitializeTimer(passin.Timer);
             this.Resize += ArrowPanel_Resize;
-            
+
         }
 
         private Timer dataUpdateTimer;

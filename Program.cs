@@ -22,6 +22,8 @@ namespace WindowsFormsApp1
                     .Build();
 
             string connectionString = configuration.GetConnectionString("PeroduaDatabase");
+            string LogDirectory = configuration.GetSection("LogDirectory").Value;
+            string LogFilePrefix = configuration.GetSection("LogFilePrefix").Value;
             int Timer = int.Parse(configuration.GetSection("Timer").Value);
             int PageSize = int.Parse(configuration.GetSection("PageSize").Value);
             int LH_Screen = int.Parse(configuration.GetSection("LH_Screen").Value);
@@ -35,6 +37,8 @@ namespace WindowsFormsApp1
             passin.ConnectionString = connectionString;
             passin.Timer = Timer;
             passin.PageSize = PageSize;
+            passin.LogDirectory = LogDirectory;
+            passin.LogFilePrefix = LogFilePrefix;
 
             //ConnectDB connectDB = new ConnectDB(connectionString);
 
@@ -106,6 +110,8 @@ namespace WindowsFormsApp1
     public class PassIn
     {
         public string ConnectionString { get; set; }
+        public string LogDirectory { get; set; }
+        public string LogFilePrefix { get; set; }
         public int Timer { get; set; }
         public int PageSize { get; set; }
     }

@@ -1,9 +1,13 @@
-﻿using System;
+﻿using OfficeOpenXml;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Drawing.Printing;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Windows.Media.Media3D;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace WindowsFormsApp1
@@ -11,6 +15,8 @@ namespace WindowsFormsApp1
     public partial class Form3 : Form
     {
         private readonly string _connectString;
+        public readonly string _logDirectory;
+        public readonly string _logFilePrefix;
         public string connectionString;
         public int PageSize;
         public int PageNumber = 1;
@@ -22,6 +28,8 @@ namespace WindowsFormsApp1
         {
             _connectString = passin.ConnectionString;
             connectionString = _connectString;
+            _logDirectory = passin.LogDirectory;
+            _logFilePrefix = passin.LogFilePrefix;
             PageSize = passin.PageSize;
             InitializeComponent();
 
@@ -271,6 +279,11 @@ namespace WindowsFormsApp1
             NextPrevBtnPanel.Height = 50;
             NextPrevBtnPanel.Dock = DockStyle.Bottom;
 
+            ButtonStyle ExcelBtn = new ButtonStyle();
+            ExcelBtn.Text = "Export Excel";
+            ExcelBtn.Click += new EventHandler(ExcelBtn_Click);
+            NextPrevBtnPanel.Controls.Add(ExcelBtn);
+
             ButtonStyle RefreshBtn = new ButtonStyle();
             RefreshBtn.Text = "Refresh";
             RefreshBtn.Click += new EventHandler(RefreshBtn_Click);
@@ -367,6 +380,52 @@ namespace WindowsFormsApp1
             DateTo = checkDate.Checked ? DateToPicker.Value.ToString("yyyy/MM/dd") : "";
             UpdateLogGridViewTable(selectedModel, input_carID, selectedCamera, selectedStatus, DateFrom, DateTo);
         }
+        private void ExcelBtn_Click(object sender, EventArgs e)
+        {
+            if(!checkDate.Checked)
+            {
+                MessageBox.Show("Please Check Date.", "Date Range Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else if ((DateToPicker.Value- DateFromPicker.Value).Days >= 31)
+            {
+                MessageBox.Show("Date Range must be less than 31 days.", "Date Range Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else if (checkDate.Checked)
+            {
+                DataTable excelDt = new DataTable();
+                string selectedModel = "";
+                string input_carID = "";
+                string selectedCamera = "";
+                string selectedStatus = "";
+                string DateFrom = checkDate.Checked ? DateFromPicker.Value.ToString("yyyy/MM/dd") : "";
+                string DateTo = checkDate.Checked ? DateToPicker.Value.ToString("yyyy/MM/dd") : "";
+                string storedProcedureName = "PERODUA_GET_LogRecord";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand command = new SqlCommand(storedProcedureName, connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@ip_Model", selectedModel);
+                        command.Parameters.AddWithValue("@ip_carID", input_carID);
+                        command.Parameters.AddWithValue("@ip_cameraPoint", selectedCamera);
+                        command.Parameters.AddWithValue("@ip_PointResult", selectedStatus);
+                        command.Parameters.AddWithValue("@ip_pageNumber", 1);
+                        command.Parameters.AddWithValue("@pageSize", 100000);
+                        command.Parameters.AddWithValue("@ip_dateFrom", DateFrom);
+                        command.Parameters.AddWithValue("@ip_dateTo", DateTo);
+                        connection.Open();
+                        excelDt = new DataTable();
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                        {
+                            adapter.Fill(excelDt);
+                        }
+                    }
+                }
+                LogExcel(excelDt);
+            }
+            
+
+        }
         private void RefreshBtn_Click(object sender, EventArgs e)
         {
             selectedModel = "";
@@ -412,6 +471,99 @@ namespace WindowsFormsApp1
                     e.CellStyle.BackColor = LogDataGridViewTable.DefaultCellStyle.BackColor;
                 }
             }
+        }
+
+        private void LogExcel(DataTable logDataTable)
+        {
+            string fileName = $"{DateTime.Now:yyyyMMdd_HHmmss}{_logFilePrefix}.xlsx";
+            string filePath = Path.Combine(_logDirectory, fileName);
+
+            //MessageBox.Show($"Exporting to Excel ({fileName})", "Export Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            DialogForm dialogForm = new DialogForm($"Exporting to Excel ({fileName})");
+            dialogForm.Show();
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                ExcelWorksheet worksheet;
+                if (package.Workbook.Worksheets.Count == 0)
+                {
+                    worksheet = package.Workbook.Worksheets.Add("Log");
+                    // Write the headers
+                    worksheet.Cells[1, 1].Value = "Time";
+                    worksheet.Cells[1, 2].Value = "Car ID";
+                    worksheet.Cells[1, 3].Value = "Model";
+                    worksheet.Cells[1, 4].Value = "v1c1";
+                    worksheet.Cells[1, 5].Value = "v1c2";
+                    worksheet.Cells[1, 6].Value = "v1c3";
+                    worksheet.Cells[1, 7].Value = "v1c4";
+                    worksheet.Cells[1, 8].Value = "v1c5";
+                    worksheet.Cells[1, 9].Value = "v1c6";
+                    worksheet.Cells[1, 10].Value = "v1c7";
+                    worksheet.Cells[1, 11].Value = "v1c8";
+                    worksheet.Cells[1, 12].Value = "v1c9";
+                    worksheet.Cells[1, 13].Value = "v1c10";
+                    worksheet.Cells[1, 14].Value = "v2c1";
+                    worksheet.Cells[1, 15].Value = "v2c2";
+                    worksheet.Cells[1, 16].Value = "v2c3";
+                    worksheet.Cells[1, 17].Value = "v2c4";
+                    worksheet.Cells[1, 18].Value = "v2c5";
+                    worksheet.Cells[1, 19].Value = "v2c6";
+                    worksheet.Cells[1, 20].Value = "v2c7";
+                    worksheet.Cells[1, 21].Value = "v2c8";
+                    worksheet.Cells[1, 22].Value = "v2c9";
+                    worksheet.Cells[1, 23].Value = "v2c10";
+                }
+                else
+                {
+                    worksheet = package.Workbook.Worksheets[0];
+                }
+
+                int lastRow = worksheet.Dimension?.Rows ?? 1;
+                int newRow = lastRow + 1;
+
+                foreach (DataRow logData in logDataTable.Rows)
+                {
+                    // Write the data
+                    if (DateTime.TryParse(logData["Log Date"].ToString(), out DateTime logDate))
+                    {
+                        worksheet.Cells[newRow, 1].Value = logDate;
+                        worksheet.Cells[newRow, 1].Style.Numberformat.Format = "yyyy-mm-dd HH:mm:ss";
+                    }
+                    else
+                    {
+                        worksheet.Cells[newRow, 1].Value = logData["Log Date"];
+                    }
+                    worksheet.Cells[newRow, 2].Value = logData["Car ID"];
+                    worksheet.Cells[newRow, 3].Value = logData["Car Model"];
+                    worksheet.Cells[newRow, 4].Value = logData["v1c1"];
+                    worksheet.Cells[newRow, 5].Value = logData["v1c2"];
+                    worksheet.Cells[newRow, 6].Value = logData["v1c3"];
+                    worksheet.Cells[newRow, 7].Value = logData["v1c4"];
+                    worksheet.Cells[newRow, 8].Value = logData["v1c5"];
+                    worksheet.Cells[newRow, 9].Value = logData["v1c6"];
+                    worksheet.Cells[newRow, 10].Value = logData["v1c7"];
+                    worksheet.Cells[newRow, 11].Value = logData["v1c8"];
+                    worksheet.Cells[newRow, 12].Value = logData["v1c9"];
+                    worksheet.Cells[newRow, 13].Value = logData["v1c10"];
+                    worksheet.Cells[newRow, 14].Value = logData["v2c1"];
+                    worksheet.Cells[newRow, 15].Value = logData["v2c2"];
+                    worksheet.Cells[newRow, 16].Value = logData["v2c3"];
+                    worksheet.Cells[newRow, 17].Value = logData["v2c4"];
+                    worksheet.Cells[newRow, 18].Value = logData["v2c5"];
+                    worksheet.Cells[newRow, 19].Value = logData["v2c6"];
+                    worksheet.Cells[newRow, 20].Value = logData["v2c7"];
+                    worksheet.Cells[newRow, 21].Value = logData["v2c8"];
+                    worksheet.Cells[newRow, 22].Value = logData["v2c9"];
+                    worksheet.Cells[newRow, 23].Value = logData["v2c10"];
+
+                    newRow++;
+                }
+
+                package.Save();
+            }
+            //MessageBox.Show($"Exporting finished. ({fileName})", "Export Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            dialogForm.UpdateStatus($"Exporting finished ({fileName}).");
         }
 
     }
