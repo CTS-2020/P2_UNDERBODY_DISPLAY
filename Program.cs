@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading;
 using System.Windows.Forms;
+using static System.Collections.Specialized.BitVector32;
 
 namespace WindowsFormsApp1
 {
@@ -30,6 +31,10 @@ namespace WindowsFormsApp1
             int RH_Screen = int.Parse(configuration.GetSection("RH_Screen").Value);
             int Log_Screen = int.Parse(configuration.GetSection("Log_Screen").Value);
             int StartupTimer = int.Parse(configuration.GetSection("StartupTimer").Value);
+            var d66bPaddingValues = GetPaddingValues(configuration, "D66B");
+            var d20nPaddingValues = GetPaddingValues(configuration, "D20N");
+            var d19hPaddingValues = GetPaddingValues(configuration, "D19H");
+            var d27hPaddingValues = GetPaddingValues(configuration, "D27H");
 
             Thread.Sleep(StartupTimer);
 
@@ -39,6 +44,10 @@ namespace WindowsFormsApp1
             passin.PageSize = PageSize;
             passin.LogDirectory = LogDirectory;
             passin.LogFilePrefix = LogFilePrefix;
+            passin.D20N = d20nPaddingValues;
+            passin.D27H = d27hPaddingValues;
+            passin.D19H = d19hPaddingValues;
+            passin.D66B = d66bPaddingValues;
 
             //ConnectDB connectDB = new ConnectDB(connectionString);
 
@@ -105,6 +114,23 @@ namespace WindowsFormsApp1
                 Application.Run(new Form3(passin));
             }
         }
+
+        public static PaddingValues GetPaddingValues(IConfiguration configuration, string imageType)
+        {
+            return new PaddingValues
+            {
+                LeftImageLeftPadding = GetAndParsePaddingValue(configuration, "LeftImage", imageType, "LeftPadding"),
+                LeftImageRightPadding = GetAndParsePaddingValue(configuration, "LeftImage", imageType, "RightPadding"),
+                RightImageLeftPadding = GetAndParsePaddingValue(configuration, "RightImage", imageType, "LeftPadding"),
+                RightImageRightPadding = GetAndParsePaddingValue(configuration, "RightImage", imageType, "RightPadding")
+            };
+        }
+
+        public static double GetAndParsePaddingValue(IConfiguration configuration, string section, string imageType, string paddingType)
+        {
+            string value = configuration.GetSection($"Padding:{section}:{imageType}:{paddingType}").Value;
+            return double.Parse(value);
+        }
     }
 
     public class PassIn
@@ -114,5 +140,17 @@ namespace WindowsFormsApp1
         public string LogFilePrefix { get; set; }
         public int Timer { get; set; }
         public int PageSize { get; set; }
+        public PaddingValues D20N { get; set; }
+        public PaddingValues D19H { get; set; }
+        public PaddingValues D27H { get; set; }
+        public PaddingValues D66B { get; set; }
+    }
+
+    public class PaddingValues
+    {
+        public double LeftImageLeftPadding { get; set; }
+        public double LeftImageRightPadding { get; set; }
+        public double RightImageLeftPadding { get; set; }
+        public double RightImageRightPadding { get; set; }
     }
 }

@@ -12,10 +12,18 @@ namespace WindowsFormsApp1
     {
         private readonly string _connectString;
         public string connectionString;
+        public readonly PaddingValues _d19hPadding;
+        public readonly PaddingValues _d20nPadding;
+        public readonly PaddingValues _d27hPadding;
+        public readonly PaddingValues _d66bPadding;
         public Form2(PassIn passin)
         {
             _connectString = passin.ConnectionString;
             connectionString = _connectString;
+            _d19hPadding = passin.D19H;
+            _d20nPadding = passin.D20N;
+            _d27hPadding = passin.D27H;
+            _d66bPadding = passin.D66B;
             InitializeComponent();
             SetFormSizeToScreenResolution();
             InitializePart();
@@ -65,7 +73,7 @@ namespace WindowsFormsApp1
             public static readonly string D20N = "1_R.png";
             public static readonly string D19H = "2_R.png";
             public static readonly string D27H = "3_R.png";
-            public static readonly string D66B = "";
+            public static readonly string D66B = "4_R.png";
         }
 
         public string mapModelImage(string modelNumber, string type)
@@ -408,51 +416,42 @@ namespace WindowsFormsApp1
 
         private void ArrowPanel_Resize(object sender, EventArgs e)
         {
-
-            if (Model == "1")
-            {
-                SetPaddingBasedOnModel(Model, 0.32, 0.32, 0.16, 0.16);
-            }
-            else if (Model == "2")
-            {
-                SetPaddingBasedOnModel(Model, 0.30, 0.30, 0.16, 0.16);
-            }
-            else if (Model == "3")
-            {
-                SetPaddingBasedOnModel(Model, 0.31, 0.28, 0.16, 0.16);
-            }
-            else if (Model == "4")
-            {
-
-            }
+            SetPaddingBasedOnModel(Model);
         }
 
         private void ArrowPanel_Resize2()
         {
-            if (Model == "1")
-            {
-                SetPaddingBasedOnModel(Model, 0.32, 0.32, 0.16, 0.16);
-            }
-            else if (Model == "2")
-            {
-                SetPaddingBasedOnModel(Model, 0.30, 0.30, 0.16, 0.16);
-            }
-            else if (Model == "3")
-            {
-                SetPaddingBasedOnModel(Model, 0.31, 0.28, 0.16, 0.16);
-            }
-            else if (Model == "4")
-            {
-
-            }
+            SetPaddingBasedOnModel(Model);
         }
 
-        private void SetPaddingBasedOnModel(string model, double leftPaddingPercentage, double rightPaddingPercentage, double imageBoxLeftPaddingPercentage, double imageBoxRightPaddingPercentage)
+        private void SetPaddingBasedOnModel(string model)
         {
+            double leftPaddingPercentage = 0;
+            double rightPaddingPercentage = 0;
+            if (model == "1")
+            {
+                leftPaddingPercentage = _d20nPadding.RightImageLeftPadding;
+                rightPaddingPercentage = _d20nPadding.RightImageRightPadding;
+            }
+            else if (model == "2")
+            {
+                leftPaddingPercentage = _d19hPadding.RightImageLeftPadding;
+                rightPaddingPercentage = _d19hPadding.RightImageRightPadding;
+            }
+            else if (model == "3")
+            {
+                leftPaddingPercentage = _d27hPadding.RightImageLeftPadding;
+                rightPaddingPercentage = _d27hPadding.RightImageRightPadding;
+            }
+            else if (model == "4")
+            {
+                leftPaddingPercentage = _d66bPadding.RightImageLeftPadding;
+                rightPaddingPercentage = _d66bPadding.RightImageRightPadding;
+            }
             int leftPadding = (int)(checkpointPanel.Width * leftPaddingPercentage);
             int rightPadding = (int)(checkpointPanel.Width * rightPaddingPercentage);
-            int imageBoxLeftPadding = (int)(checkpointPanel.Width * imageBoxLeftPaddingPercentage);
-            int imageBoxRightPadding = (int)(checkpointPanel.Width * imageBoxRightPaddingPercentage);
+            int imageBoxLeftPadding = (int)(checkpointPanel.Width * IMAGE_PADDINGRATIO.FixRatio);
+            int imageBoxRightPadding = (int)(checkpointPanel.Width * IMAGE_PADDINGRATIO.FixRatio);
 
             checkpointPanel.Padding = new Padding(leftPadding, 0, rightPadding, 0);
             ImagePanel.Padding = new Padding(imageBoxLeftPadding, 30, imageBoxRightPadding, 0);
