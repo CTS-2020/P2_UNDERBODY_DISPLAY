@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -335,10 +336,25 @@ namespace WindowsFormsApp1
             DataTable filteredDataTable = dataTable.Copy();
             //filteredDataTable.Columns.Remove("Log Date");
             filteredDataTable.Columns.Remove("TotalPage");
+            filteredDataTable.Columns.Remove("UID");
             filteredDataTable.Columns.Remove("current_car_model");
             filteredDataTable.Columns.Remove("refresh_indicator");
             LogDataGridViewTable.DataSource = filteredDataTable;
+            LogDataGridViewTable.DataBindingComplete += LogDataGridViewTable_DataBindingComplete;
+
+            //LogDataGridViewTable.Columns["Car ID"].Frozen = true;
+            //LogDataGridViewTable.Columns["Car Model"].Frozen = true;
+            //LogDataGridViewTable.Columns["Log Date"].Frozen = true;
+
             LogDataGridViewTable.CellFormatting += LogDataGridViewTable_CellFormatting;
+        }
+
+        private void LogDataGridViewTable_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Freeze the desired columns after data binding is complete
+            LogDataGridViewTable.Columns["Car ID"].Frozen = true;
+            LogDataGridViewTable.Columns["Car Model"].Frozen = true;
+            LogDataGridViewTable.Columns["Log Date"].Frozen = true;
         }
 
         //refresh click action
@@ -382,11 +398,11 @@ namespace WindowsFormsApp1
         }
         private void ExcelBtn_Click(object sender, EventArgs e)
         {
-            if(!checkDate.Checked)
+            if (!checkDate.Checked)
             {
                 MessageBox.Show("Please Check Date.", "Date Range Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            else if ((DateToPicker.Value- DateFromPicker.Value).Days >= 31)
+            else if ((DateToPicker.Value - DateFromPicker.Value).Days >= 31)
             {
                 MessageBox.Show("Date Range must be less than 31 days.", "Date Range Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -423,7 +439,7 @@ namespace WindowsFormsApp1
                 }
                 LogExcel(excelDt);
             }
-            
+
 
         }
         private void RefreshBtn_Click(object sender, EventArgs e)
@@ -556,6 +572,21 @@ namespace WindowsFormsApp1
                     worksheet.Cells[newRow, 21].Value = logData["v2c8"];
                     worksheet.Cells[newRow, 22].Value = logData["v2c9"];
                     worksheet.Cells[newRow, 23].Value = logData["v2c10"];
+
+                    for (int col = 4; col <= 23; col++)
+                    {
+                        string cellValue = worksheet.Cells[newRow, col].Text;
+                        if (cellValue == "OK")
+                        {
+                            worksheet.Cells[newRow, col].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[newRow, col].Style.Fill.BackgroundColor.SetColor(Color.Green);
+                        }
+                        else if (cellValue == "NG")
+                        {
+                            worksheet.Cells[newRow, col].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[newRow, col].Style.Fill.BackgroundColor.SetColor(Color.Red);
+                        }
+                    }
 
                     newRow++;
                 }
