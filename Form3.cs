@@ -20,7 +20,7 @@ namespace WindowsFormsApp1
         public string connectionString;
         public int PageSize;
         public int PageNumber = 1;
-        private string[] modelArray = { "", "D20N", "D19H", "D27H", "D66B" };
+        private string[] modelArray = { "", "D20N", "D19H", "D27A", "D66B" };
         private string[] CameraArray = { "","v1c1", "v1c2", "v1c3", "v1c4","v1c5", "v1c6", "v1c7", "v1c8", "v1c9", "v1c10",
         "v2c1", "v2c2", "v2c3", "v2c4","v2c5", "v2c6", "v2c7", "v2c8", "v2c9", "v2c10",};
         private string[] PointStatusArray = { "", "OK", "NG" };

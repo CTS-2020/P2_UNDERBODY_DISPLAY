@@ -18,7 +18,7 @@ namespace WindowsFormsApp1
         public readonly string _logFilePrefix;
         public readonly PaddingValues _d19hPadding;
         public readonly PaddingValues _d20nPadding;
-        public readonly PaddingValues _d27hPadding;
+        public readonly PaddingValues _d27aPadding;
         public readonly PaddingValues _d66bPadding;
         public Form1(PassIn passin)
         {
@@ -28,7 +28,7 @@ namespace WindowsFormsApp1
             _logFilePrefix = passin.LogFilePrefix;
             _d19hPadding = passin.D19H;
             _d20nPadding = passin.D20N;
-            _d27hPadding = passin.D27H;
+            _d27aPadding = passin.D27A;
             _d66bPadding = passin.D66B;
             InitializeComponent();
             SetFormSizeToScreenResolution();
@@ -78,7 +78,7 @@ namespace WindowsFormsApp1
         {
             public static readonly string D20N = "1_L.png";
             public static readonly string D19H = "2_L.png";
-            public static readonly string D27H = "3_L.png";
+            public static readonly string D27A = "3_L.png";
             public static readonly string D66B = "4_L.png";
         }
 
@@ -91,7 +91,7 @@ namespace WindowsFormsApp1
                     {
                         { "1", MODEL_IMAGE.D20N },
                         { "2", MODEL_IMAGE.D19H },
-                        { "3", MODEL_IMAGE.D27H },
+                        { "3", MODEL_IMAGE.D27A },
                         { "4", MODEL_IMAGE.D66B }
                     }
                 },
@@ -100,7 +100,7 @@ namespace WindowsFormsApp1
                     {
                         { "1", MODEL_LOGO.D20N },
                         { "2", MODEL_LOGO.D19H },
-                        { "3", MODEL_LOGO.D27H },
+                        { "3", MODEL_LOGO.D27A },
                         { "4", MODEL_LOGO.D66B }
                     }
                 }
@@ -522,8 +522,8 @@ namespace WindowsFormsApp1
             }
             else if (model == "3")
             {
-                leftPaddingPercentage = _d27hPadding.LeftImageLeftPadding;
-                rightPaddingPercentage = _d27hPadding.LeftImageRightPadding;
+                leftPaddingPercentage = _d27aPadding.LeftImageLeftPadding;
+                rightPaddingPercentage = _d27aPadding.LeftImageRightPadding;
             }
             else if (model == "4")
             {
@@ -603,7 +603,7 @@ namespace WindowsFormsApp1
     {
         public static readonly string D20N = "Myvi_Logo.jpg";
         public static readonly string D19H = "Aruz_Logo.jpg";
-        public static readonly string D27H = "Alza_Logo.png";
+        public static readonly string D27A = "Alza_Logo.png";
         public static readonly string D66B = "D66B_Logo.png";
     }
 
@@ -621,7 +621,7 @@ namespace WindowsFormsApp1
         {
             { "1", "D20N"},
             { "2", "D19H"},
-            { "3", "D27H"},
+            { "3", "D27A"},
             { "4", "D66B"}
         };
     }

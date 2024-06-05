@@ -14,7 +14,7 @@ namespace WindowsFormsApp1
         public string connectionString;
         public readonly PaddingValues _d19hPadding;
         public readonly PaddingValues _d20nPadding;
-        public readonly PaddingValues _d27hPadding;
+        public readonly PaddingValues _d27aPadding;
         public readonly PaddingValues _d66bPadding;
         public Form2(PassIn passin)
         {
@@ -22,7 +22,7 @@ namespace WindowsFormsApp1
             connectionString = _connectString;
             _d19hPadding = passin.D19H;
             _d20nPadding = passin.D20N;
-            _d27hPadding = passin.D27H;
+            _d27aPadding = passin.D27A;
             _d66bPadding = passin.D66B;
             InitializeComponent();
             SetFormSizeToScreenResolution();
@@ -72,7 +72,7 @@ namespace WindowsFormsApp1
         {
             public static readonly string D20N = "1_R.png";
             public static readonly string D19H = "2_R.png";
-            public static readonly string D27H = "3_R.png";
+            public static readonly string D27A = "3_R.png";
             public static readonly string D66B = "4_R.png";
         }
 
@@ -85,7 +85,7 @@ namespace WindowsFormsApp1
                     {
                         { "1", MODEL_IMAGE.D20N },
                         { "2", MODEL_IMAGE.D19H },
-                        { "3", MODEL_IMAGE.D27H },
+                        { "3", MODEL_IMAGE.D27A },
                         { "4", MODEL_IMAGE.D66B }
                     }
                 },
@@ -94,7 +94,7 @@ namespace WindowsFormsApp1
                     {
                         { "1", MODEL_LOGO.D20N },
                         { "2", MODEL_LOGO.D19H },
-                        { "3", MODEL_LOGO.D27H },
+                        { "3", MODEL_LOGO.D27A },
                         { "4", MODEL_LOGO.D66B }
                     }
                 }
@@ -440,8 +440,8 @@ namespace WindowsFormsApp1
             }
             else if (model == "3")
             {
-                leftPaddingPercentage = _d27hPadding.RightImageLeftPadding;
-                rightPaddingPercentage = _d27hPadding.RightImageRightPadding;
+                leftPaddingPercentage = _d27aPadding.RightImageLeftPadding;
+                rightPaddingPercentage = _d27aPadding.RightImageRightPadding;
             }
             else if (model == "4")
             {

@@ -34,7 +34,7 @@ namespace WindowsFormsApp1
             var d66bPaddingValues = GetPaddingValues(configuration, "D66B");
             var d20nPaddingValues = GetPaddingValues(configuration, "D20N");
             var d19hPaddingValues = GetPaddingValues(configuration, "D19H");
-            var d27hPaddingValues = GetPaddingValues(configuration, "D27H");
+            var d27aPaddingValues = GetPaddingValues(configuration, "D27A");
 
             Thread.Sleep(StartupTimer);
 
@@ -45,7 +45,7 @@ namespace WindowsFormsApp1
             passin.LogDirectory = LogDirectory;
             passin.LogFilePrefix = LogFilePrefix;
             passin.D20N = d20nPaddingValues;
-            passin.D27H = d27hPaddingValues;
+            passin.D27A = d27aPaddingValues;
             passin.D19H = d19hPaddingValues;
             passin.D66B = d66bPaddingValues;
 
@@ -142,7 +142,7 @@ namespace WindowsFormsApp1
         public int PageSize { get; set; }
         public PaddingValues D20N { get; set; }
         public PaddingValues D19H { get; set; }
-        public PaddingValues D27H { get; set; }
+        public PaddingValues D27A { get; set; }
         public PaddingValues D66B { get; set; }
     }
 
