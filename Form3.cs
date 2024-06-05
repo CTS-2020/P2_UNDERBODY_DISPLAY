@@ -25,12 +25,28 @@ namespace WindowsFormsApp1
         private string[] CameraArray = { "","v1c1", "v1c2", "v1c3", "v1c4","v1c5", "v1c6", "v1c7", "v1c8", "v1c9", "v1c10",
         "v2c1", "v2c2", "v2c3", "v2c4","v2c5", "v2c6", "v2c7", "v2c8", "v2c9", "v2c10",};
         private string[] PointStatusArray = { "", "OK", "NG" };
+        public readonly int _CheckScreenTimer;
+        public readonly int _LogScreen;
+        private Screen currentScreen;
+        private bool isMessageBoxShown;
         public Form3(PassIn passin)
         {
             _connectString = passin.ConnectionString;
             connectionString = _connectString;
             _logDirectory = passin.LogDirectory;
             _logFilePrefix = passin.LogFilePrefix;
+
+            _CheckScreenTimer = passin.CheckScreenTimer;
+            _LogScreen = passin.Log_Screen;
+            Screen[] screens = Screen.AllScreens;
+            currentScreen = screens[_LogScreen];
+            isMessageBoxShown = false;
+            // Start a timer to periodically check for screen changes
+            Timer screenCheckTimer = new Timer();
+            screenCheckTimer.Interval = _CheckScreenTimer; // Check every 1 second (adjust as needed)
+            screenCheckTimer.Tick += ScreenCheckTimer_Tick;
+            screenCheckTimer.Start();
+
             PageSize = passin.PageSize;
             InitializeComponent();
 
@@ -41,6 +57,30 @@ namespace WindowsFormsApp1
             InitialiseTopPaddingPanel();
             InitialNavigateButotn();
             InitialLogTable();
+        }
+
+        private void ScreenCheckTimer_Tick(object sender, EventArgs e)
+        {
+            // Check if the current screen has changed
+            Screen newScreen = Screen.FromControl(this);
+            if (!newScreen.Equals(currentScreen))
+            {
+                // Handle screen change only if the message box is not already shown
+                if (!isMessageBoxShown)
+                {
+                    // Show message box and update the flag
+                    //MessageBox.Show("Form's screen has changed!");
+                    isMessageBoxShown = true;
+                    Application.Restart();
+                }
+                // Update the current screen
+                //currentScreen = newScreen;
+            }
+            else
+            {
+                // Reset the flag when the form returns to the original screen
+                isMessageBoxShown = false;
+            }
         }
 
         private void Form3_Load(object sender, EventArgs e)

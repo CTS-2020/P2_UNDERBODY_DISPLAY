@@ -16,6 +16,10 @@ namespace WindowsFormsApp1
         public readonly PaddingValues _d20nPadding;
         public readonly PaddingValues _d27aPadding;
         public readonly PaddingValues _d66bPadding;
+        private Screen currentScreen;
+        public readonly int _RhScreen;
+        private bool isMessageBoxShown;
+        public readonly int _CheckScreenTimer;
         public Form2(PassIn passin)
         {
             _connectString = passin.ConnectionString;
@@ -24,11 +28,47 @@ namespace WindowsFormsApp1
             _d20nPadding = passin.D20N;
             _d27aPadding = passin.D27A;
             _d66bPadding = passin.D66B;
+
+            _CheckScreenTimer = passin.CheckScreenTimer;
+            _RhScreen = passin.RH_Screen;
+            Screen[] screens = Screen.AllScreens;
+            currentScreen = screens[_RhScreen];
+            isMessageBoxShown = false;
+            // Start a timer to periodically check for screen changes
+            Timer screenCheckTimer = new Timer();
+            screenCheckTimer.Interval = _CheckScreenTimer; // Check every 1 second (adjust as needed)
+            screenCheckTimer.Tick += ScreenCheckTimer_Tick;
+            screenCheckTimer.Start();
+
             InitializeComponent();
             SetFormSizeToScreenResolution();
             InitializePart();
             InitializeTimer(passin.Timer);
             this.Resize += ArrowPanel_Resize;
+        }
+
+        private void ScreenCheckTimer_Tick(object sender, EventArgs e)
+        {
+            // Check if the current screen has changed
+            Screen newScreen = Screen.FromControl(this);
+            if (!newScreen.Equals(currentScreen))
+            {
+                // Handle screen change only if the message box is not already shown
+                if (!isMessageBoxShown)
+                {
+                    // Show message box and update the flag
+                    //MessageBox.Show("Form's screen has changed!");
+                    isMessageBoxShown = true;
+                    Application.Restart();
+                }
+                // Update the current screen
+                //currentScreen = newScreen;
+            }
+            else
+            {
+                // Reset the flag when the form returns to the original screen
+                isMessageBoxShown = false;
+            }
         }
 
         private Timer dataUpdateTimer;

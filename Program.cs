@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.Configuration;
+using Microsoft.Win32;
 using System;
 using System.Threading;
 using System.Windows.Forms;
@@ -26,6 +27,7 @@ namespace WindowsFormsApp1
             string LogDirectory = configuration.GetSection("LogDirectory").Value;
             string LogFilePrefix = configuration.GetSection("LogFilePrefix").Value;
             int Timer = int.Parse(configuration.GetSection("Timer").Value);
+            int CheckScreenTimer = int.Parse(configuration.GetSection("CheckScreenTimer").Value);
             int PageSize = int.Parse(configuration.GetSection("PageSize").Value);
             int LH_Screen = int.Parse(configuration.GetSection("LH_Screen").Value);
             int RH_Screen = int.Parse(configuration.GetSection("RH_Screen").Value);
@@ -48,6 +50,10 @@ namespace WindowsFormsApp1
             passin.D27A = d27aPaddingValues;
             passin.D19H = d19hPaddingValues;
             passin.D66B = d66bPaddingValues;
+            passin.LH_Screen = LH_Screen;
+            passin.RH_Screen = RH_Screen;
+            passin.Log_Screen = Log_Screen;
+            passin.CheckScreenTimer = CheckScreenTimer;
 
             //ConnectDB connectDB = new ConnectDB(connectionString);
 
@@ -59,7 +65,21 @@ namespace WindowsFormsApp1
             // Check if there are at least two screens available
             if (screens.Length >= 2)
             {
-
+                if (!IsValidScreenIndex(LH_Screen, screens))
+                {
+                    MessageBox.Show("Screen index out of range for one or more forms!");
+                    return;
+                }
+                else if (!IsValidScreenIndex(RH_Screen, screens))
+                {
+                    MessageBox.Show("Screen index out of range for one or more forms!");
+                    return;
+                }
+                else if (!IsValidScreenIndex(Log_Screen, screens))
+                {
+                    MessageBox.Show("Screen index out of range for one or more forms!");
+                    return;
+                }
 
                 // Create and start a new thread for Form1
                 Thread form1Thread = new Thread(() =>
@@ -115,6 +135,11 @@ namespace WindowsFormsApp1
             }
         }
 
+        static bool IsValidScreenIndex(int screenPosition, Screen[] screens)
+        {
+            int index = (int)screenPosition;
+            return index >= 0 && index < screens.Length;
+        }
         public static PaddingValues GetPaddingValues(IConfiguration configuration, string imageType)
         {
             return new PaddingValues
@@ -140,6 +165,10 @@ namespace WindowsFormsApp1
         public string LogFilePrefix { get; set; }
         public int Timer { get; set; }
         public int PageSize { get; set; }
+        public int LH_Screen { get; set; }
+        public int RH_Screen { get; set; }
+        public int Log_Screen { get; set; }
+        public int CheckScreenTimer { get; set; }
         public PaddingValues D20N { get; set; }
         public PaddingValues D19H { get; set; }
         public PaddingValues D27A { get; set; }
