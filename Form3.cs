@@ -580,11 +580,13 @@ namespace WindowsFormsApp1
                         {
                             worksheet.Cells[newRow, col].Style.Fill.PatternType = ExcelFillStyle.Solid;
                             worksheet.Cells[newRow, col].Style.Fill.BackgroundColor.SetColor(Color.Green);
+                            worksheet.Cells[newRow, col].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.Black);
                         }
                         else if (cellValue == "NG")
                         {
                             worksheet.Cells[newRow, col].Style.Fill.PatternType = ExcelFillStyle.Solid;
                             worksheet.Cells[newRow, col].Style.Fill.BackgroundColor.SetColor(Color.Red);
+                            worksheet.Cells[newRow, col].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.Black);
                         }
                     }
 
