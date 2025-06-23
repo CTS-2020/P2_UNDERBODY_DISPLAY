@@ -14,7 +14,9 @@ namespace WindowsFormsApp1
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        private static readonly string CrashLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "crashlog.txt");
+        private static readonly string ErrorLogDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ErrorLogs");
+        private static string GetCrashLogPath() =>
+            Path.Combine(Directory.CreateDirectory(ErrorLogDirectory).FullName, $"{DateTime.Now:yyyyMMdd}_crashlog.txt");
 
         [STAThread]
         static void Main()
@@ -238,7 +240,7 @@ namespace WindowsFormsApp1
             try
             {
                 string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{context}]:\n{ex?.ToString()}\n\n";
-                File.AppendAllText(CrashLogPath, logMessage);
+                File.AppendAllText(GetCrashLogPath(), logMessage);
             }
             catch
             {
